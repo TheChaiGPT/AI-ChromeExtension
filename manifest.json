@@ -1,12 +1,15 @@
 {
   "manifest_version": 3,
-  "name": "Google Docs Assistant",
-  "version": "1.1",
-  "description": "Extracts text from Google Docs and interacts with OpenAI API.",
+  "name": "DocuSense AI",
+  "version": "1.2",
+  "description": "Interact with your Google Docs and Sheets using OpenAI.",
   "permissions": ["identity", "storage", "activeTab", "scripting"],
   "oauth2": {
-    "client_id": "537390088835-0p2frvh4pglmpa35fcabtjl4qmpmj9re.apps.googleusercontent.com.apps.googleusercontent.com",
-    "scopes": ["https://www.googleapis.com/auth/documents.readonly"]
+    "client_id": "537390088835-0p2frvh4pglmpa35fcabtjl4qmpmj9re.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/documents.readonly",
+      "https://www.googleapis.com/auth/spreadsheets.readonly"
+    ]
   },
   "background": {
     "service_worker": "background.js"
@@ -22,9 +25,10 @@
   },
   "host_permissions": [
     "https://api.openai.com/*",
-    "https://docs.googleapis.com/*"
+    "https://docs.googleapis.com/*",
+    "https://sheets.googleapis.com/*"
   ],
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; connect-src https://api.openai.com/ https://docs.googleapis.com/ https://accounts.google.com/ https://content.googleapis.com/"
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src https://api.openai.com/ https://docs.googleapis.com/ https://sheets.googleapis.com/ https://accounts.google.com/ https://content.googleapis.com/"
   }
 }

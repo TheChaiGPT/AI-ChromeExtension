@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const copyButton = document.getElementById("copyButton");
   const apiKeyInput = document.getElementById("apiKeyInput");
   const saveApiKeyButton = document.getElementById("saveApiKeyButton");
+  const contentTypeSelect = document.getElementById('contentType');
   const formatButtons = document.querySelectorAll('.format-btn');
 
   // Load saved API key on startup
@@ -30,28 +31,56 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Extract text from the Google Docs API
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    const activeTab = tabs[0];
-    const url = new URL(activeTab.url);
-    const documentId = url.pathname.split("/")[3];
-
-    // Request the document content from the background script
-    chrome.runtime.sendMessage(
-      {
-        action: "getDocumentContent",
-        documentId: documentId,
-      },
-      (response) => {
-        if (response && response.textContent) {
-          docContentTextarea.value = response.textContent;
-        } else {
-          docContentTextarea.value =
-            "Unable to extract text. Please ensure you have granted permissions.";
-        }
+  // Function to load content based on the selected type
+  function loadContent() {
+    const contentType = contentTypeSelect.value;
+    docContentTextarea.value = "Loading content...";
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const activeTab = tabs[0];
+      const url = new URL(activeTab.url);
+      if (contentType === 'doc') {
+        const documentId = url.pathname.split('/')[3];
+        // Request the document content
+        chrome.runtime.sendMessage(
+          {
+            action: "getDocumentContent",
+            documentId: documentId,
+          },
+          (response) => {
+            if (response && response.textContent) {
+              docContentTextarea.value = response.textContent;
+            } else {
+              docContentTextarea.value =
+                "Unable to extract text. Please ensure you have granted permissions.";
+            }
+          }
+        );
+      } else if (contentType === 'sheet') {
+        const spreadsheetId = url.pathname.split('/')[3];
+        // Request the sheet content
+        chrome.runtime.sendMessage(
+          {
+            action: "getSheetContent",
+            spreadsheetId: spreadsheetId,
+          },
+          (response) => {
+            if (response && response.textContent) {
+              docContentTextarea.value = response.textContent;
+            } else {
+              docContentTextarea.value =
+                "Unable to extract sheet data. Please ensure you have granted permissions.";
+            }
+          }
+        );
       }
-    );
-  });
+    });
+  }
+
+  // Call loadContent when the content type changes
+  contentTypeSelect.addEventListener('change', loadContent);
+
+  // Call loadContent on startup
+  loadContent();
 
   // Handle the Ask button click
   askButton.addEventListener("click", () => {
@@ -77,10 +106,10 @@ document.addEventListener("DOMContentLoaded", () => {
       askButton.textContent = "Asking...";
 
       // Truncate the document content if it's too long
-      const maxDocLength = 1500;
-      let truncatedDocContent = docContent;
-      if (docContent.length > maxDocLength) {
-        truncatedDocContent = docContent.substring(0, maxDocLength);
+      const maxContentLength = 3000;
+      let truncatedContent = docContent;
+      if (truncatedContent.length > maxContentLength) {
+        truncatedContent = truncatedContent.substring(0, maxContentLength);
       }
 
       // Call the OpenAI API
@@ -95,7 +124,7 @@ document.addEventListener("DOMContentLoaded", () => {
           messages: [
             {
               role: "system",
-              content: `You are given the following document:\n${truncatedDocContent}\nPlease answer the user's question based on the document.`,
+              content: `You are given the following content:\n${truncatedContent}\nPlease answer the user's question based on the content.`,
             },
             {
               role: "user",

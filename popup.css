@@ -38,6 +38,13 @@ textarea {
   border-radius: 4px;
 }
 
+select {
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+}
+
 #askButton,
 #copyButton,
 #saveApiKeyButton {

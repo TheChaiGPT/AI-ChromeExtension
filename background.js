@@ -2,6 +2,7 @@
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "getDocumentContent") {
+    // Fetch content from Google Docs
     getAccessToken().then((token) => {
       fetch(`https://docs.googleapis.com/v1/documents/${request.documentId}`, {
         headers: {
@@ -18,8 +19,31 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           sendResponse({ textContent: "" });
         });
     });
-    // Return true to indicate that sendResponse will be called asynchronously
-    return true;
+    return true; // Indicates async response
+  } else if (request.action === "getSheetContent") {
+    // Fetch content from Google Sheets
+    getAccessToken().then((token) => {
+      fetch(
+        `https://sheets.googleapis.com/v4/spreadsheets/${request.spreadsheetId}/values:batchGet?ranges=${encodeURIComponent(
+          request.range || "Sheet1"
+        )}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          const textContent = extractTextFromSheet(data);
+          sendResponse({ textContent });
+        })
+        .catch((error) => {
+          console.error("Error fetching sheet content:", error);
+          sendResponse({ textContent: "" });
+        });
+    });
+    return true; // Indicates async response
   }
 });
 
@@ -36,7 +60,7 @@ function getAccessToken() {
   });
 }
 
-// Function to extract text from the document structure
+// Function to extract text from Google Docs document
 function extractTextFromDocument(document) {
   let text = "";
   if (document && document.body && document.body.content) {
@@ -46,6 +70,21 @@ function extractTextFromDocument(document) {
           if (elem.textRun && elem.textRun.content) {
             text += elem.textRun.content;
           }
+        });
+      }
+    });
+  }
+  return text;
+}
+
+// Function to extract text from Google Sheets data
+function extractTextFromSheet(sheetData) {
+  let text = "";
+  if (sheetData && sheetData.valueRanges) {
+    sheetData.valueRanges.forEach((range) => {
+      if (range.values) {
+        range.values.forEach((row) => {
+          text += row.join("\t") + "\n";
         });
       }
     });
