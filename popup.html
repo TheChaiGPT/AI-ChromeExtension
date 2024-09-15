@@ -9,27 +9,52 @@
 <body>
   <div id="app">
     <h1>Google Docs Assistant</h1>
-    <textarea
-      id="docContent"
-      readonly
-      placeholder="Document content will appear here..."
-    ></textarea>
-    <textarea id="userQuestion" placeholder="Ask a question..."></textarea>
+
+    <div id="disclosure">
+      <p><strong>Data Usage Notice:</strong> This extension accesses the content of your Google Docs to provide answers to your questions using the OpenAI API. The document content and your question are sent securely to OpenAI to generate a response. We do not store or share your data with any other parties.</p>
+    </div>
+
+    <div class="section">
+      <label for="docContent">Document Content:</label>
+      <textarea
+        id="docContent"
+        readonly
+        placeholder="Document content will appear here..."
+      ></textarea>
+    </div>
+
+    <div class="section">
+      <label for="userQuestion">Your Question:</label>
+      <textarea id="userQuestion" placeholder="Ask a question..."></textarea>
+    </div>
+
     <button id="askButton">Ask</button>
 
     <div id="responseContainer">
       <h2>Response:</h2>
-      <div id="responseText"></div>
+      <!-- Editable response area -->
+      <div id="editorToolbar">
+        <button class="format-btn" data-command="bold"><b>B</b></button>
+        <button class="format-btn" data-command="italic"><i>I</i></button>
+        <button class="format-btn" data-command="underline"><u>U</u></button>
+        <button class="format-btn" data-command="insertOrderedList">OL</button>
+        <button class="format-btn" data-command="insertUnorderedList">UL</button>
+      </div>
+      <div id="responseText" contenteditable="true"></div>
+
       <button id="copyButton">Copy Response</button>
     </div>
 
     <h2>Settings</h2>
-    <input
-      type="password"
-      id="apiKeyInput"
-      placeholder="Enter OpenAI API Key"
-    />
-    <button id="saveApiKeyButton">Save API Key</button>
+    <div class="section">
+      <label for="apiKeyInput">OpenAI API Key:</label>
+      <input
+        type="password"
+        id="apiKeyInput"
+        placeholder="Enter OpenAI API Key"
+      />
+      <button id="saveApiKeyButton">Save API Key</button>
+    </div>
   </div>
   <script src="popup.js"></script>
 </body>

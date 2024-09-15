@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const copyButton = document.getElementById("copyButton");
   const apiKeyInput = document.getElementById("apiKeyInput");
   const saveApiKeyButton = document.getElementById("saveApiKeyButton");
+  const formatButtons = document.querySelectorAll('.format-btn');
 
   // Load saved API key on startup
   chrome.storage.local.get("openaiApiKey", (data) => {
@@ -71,6 +72,10 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
+      // Disable the Ask button and show loading indicator
+      askButton.disabled = true;
+      askButton.textContent = "Asking...";
+
       // Truncate the document content if it's too long
       const maxDocLength = 1500;
       let truncatedDocContent = docContent;
@@ -101,32 +106,67 @@ document.addEventListener("DOMContentLoaded", () => {
       })
         .then((response) => response.json())
         .then((data) => {
+          askButton.disabled = false;
+          askButton.textContent = "Ask";
+
           if (data.error) {
             console.error("Error from OpenAI API:", data.error);
             alert(`OpenAI API error: ${data.error.message}`);
           } else {
             const answer = data.choices[0].message.content.trim();
-            responseTextDiv.textContent = answer;
+            responseTextDiv.innerHTML = answer.replace(/\n/g, '<br>');
             responseContainer.style.display = "block";
           }
         })
         .catch((error) => {
           console.error("Error:", error);
           alert("An error occurred while fetching the response.");
+          askButton.disabled = false;
+          askButton.textContent = "Ask";
         });
     });
   });
 
   // Handle the Copy button click
   copyButton.addEventListener("click", () => {
-    const responseText = responseTextDiv.textContent;
-    navigator.clipboard.writeText(responseText).then(
-      () => {
+    const responseHtml = responseTextDiv.innerHTML;
+
+    // Create a temporary element to select and copy HTML content
+    const tempElem = document.createElement('div');
+    tempElem.innerHTML = responseHtml;
+    document.body.appendChild(tempElem);
+
+    // Create a range and select the content
+    const range = document.createRange();
+    range.selectNodeContents(tempElem);
+
+    // Remove any existing selections
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+
+    try {
+      const successful = document.execCommand('copy');
+      if (successful) {
         alert("Response copied to clipboard!");
-      },
-      (err) => {
-        console.error("Could not copy text: ", err);
+      } else {
+        alert("Failed to copy response.");
       }
-    );
+    } catch (err) {
+      console.error("Error copying response:", err);
+      alert("Error copying response.");
+    }
+
+    // Clean up
+    window.getSelection().removeAllRanges();
+    document.body.removeChild(tempElem);
+  });
+
+  // Handle text formatting buttons
+  formatButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const command = button.getAttribute('data-command');
+      document.execCommand(command, false, null);
+      responseTextDiv.focus();
+    });
   });
 });
