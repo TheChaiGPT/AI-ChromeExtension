@@ -1,7 +1,7 @@
 // popup.js
 
 document.addEventListener("DOMContentLoaded", () => {
-  const docContentTextarea = document.getElementById("docContent");
+  const docContentDiv = document.getElementById("docContent");
   const userQuestionTextarea = document.getElementById("userQuestion");
   const askButton = document.getElementById("askButton");
   const responseContainer = document.getElementById("responseContainer");
@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Function to load content based on the selected type
   function loadContent() {
     const contentType = contentTypeSelect.value;
-    docContentTextarea.value = "Loading content...";
+    docContentDiv.innerHTML = "Loading content...";
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const activeTab = tabs[0];
       const url = new URL(activeTab.url);
@@ -47,10 +47,13 @@ document.addEventListener("DOMContentLoaded", () => {
             documentId: documentId,
           },
           (response) => {
-            if (response && response.textContent) {
-              docContentTextarea.value = response.textContent;
+            if (response && response.htmlContent) {
+              const sanitizedHtml = DOMPurify.sanitize(response.htmlContent);
+              docContentDiv.innerHTML = sanitizedHtml;
+              // Store plain text content for later use
+              docContentDiv.dataset.plainText = response.plainTextContent;
             } else {
-              docContentTextarea.value =
+              docContentDiv.innerHTML =
                 "Unable to extract text. Please ensure you have granted permissions.";
             }
           }
@@ -64,10 +67,13 @@ document.addEventListener("DOMContentLoaded", () => {
             spreadsheetId: spreadsheetId,
           },
           (response) => {
-            if (response && response.textContent) {
-              docContentTextarea.value = response.textContent;
+            if (response && response.htmlContent) {
+              const sanitizedHtml = DOMPurify.sanitize(response.htmlContent);
+              docContentDiv.innerHTML = sanitizedHtml;
+              // Store plain text content for later use
+              docContentDiv.dataset.plainText = response.plainTextContent;
             } else {
-              docContentTextarea.value =
+              docContentDiv.innerHTML =
                 "Unable to extract sheet data. Please ensure you have granted permissions.";
             }
           }
@@ -84,7 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Handle the Ask button click
   askButton.addEventListener("click", () => {
-    const docContent = docContentTextarea.value;
+    const docContent = docContentDiv.dataset.plainText || '';
     const userQuestion = userQuestionTextarea.value.trim();
 
     if (!userQuestion) {
