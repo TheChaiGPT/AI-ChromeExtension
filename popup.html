@@ -1,0 +1,36 @@
+<!-- popup.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Google Docs Assistant</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div id="app">
+    <h1>Google Docs Assistant</h1>
+    <textarea
+      id="docContent"
+      readonly
+      placeholder="Document content will appear here..."
+    ></textarea>
+    <textarea id="userQuestion" placeholder="Ask a question..."></textarea>
+    <button id="askButton">Ask</button>
+
+    <div id="responseContainer">
+      <h2>Response:</h2>
+      <div id="responseText"></div>
+      <button id="copyButton">Copy Response</button>
+    </div>
+
+    <h2>Settings</h2>
+    <input
+      type="password"
+      id="apiKeyInput"
+      placeholder="Enter OpenAI API Key"
+    />
+    <button id="saveApiKeyButton">Save API Key</button>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "Google Docs Assistant",
+  "version": "1.0",
+  "description": "Extracts text from Google Docs and interacts with OpenAI API.",
+  "permissions": ["identity", "storage", "activeTab", "scripting"],
+  "oauth2": {
+    "client_id": "537390088835-0p2frvh4pglmpa35fcabtjl4qmpmj9re.apps.googleusercontent.com",
+    "scopes": ["https://www.googleapis.com/auth/documents.readonly"]
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "host_permissions": ["https://api.openai.com/*", "https://docs.googleapis.com/*"],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src https://api.openai.com/ https://docs.googleapis.com/"
+  }
+}

@@ -1,0 +1,38 @@
+/* popup.css */
+
+#app {
+  width: 300px;
+  padding: 10px;
+  font-family: Arial, sans-serif;
+}
+
+#docContent,
+#userQuestion {
+  width: 100%;
+  height: 100px;
+  margin-bottom: 10px;
+}
+
+#askButton,
+#copyButton,
+#saveApiKeyButton {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+#responseContainer {
+  display: none;
+}
+
+#responseText {
+  background-color: #f1f1f1;
+  padding: 10px;
+  min-height: 50px;
+}
+
+#apiKeyInput {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 5px;
+}
